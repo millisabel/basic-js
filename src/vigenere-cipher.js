@@ -18,89 +18,55 @@
  * 
  */
 class VigenereCipheringMachine {
-  constructor(direct = true) {
-    this.direct = direct;
+  constructor (type = true) {
+    this.type = type;
     this.alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   }
 
-  charIndex = (str) => str.toUpperCase().split('').map(el => {
-    return this.alphabet.indexOf(el) === -1 ? el : this.alphabet.indexOf(el)
-  })
-
-  encrypt(message, key) {
-    if (typeof message === 'string' && typeof key === 'string') {
-      let encrypted = '';
-
-      let messageNum = this.charIndex(message);
-      let keyNum = this.charIndex(key);
-      if (keyNum.length < messageNum.length) {
-        keyNum = Array(Math.ceil(messageNum.length / keyNum.length)).fill(keyNum).flat();
-      }
-      keyNum.length = messageNum.length;
-      let keySkip = 0;
-
-      for (let i = 0; i < message.length; i++) {
-        if (typeof messageNum[i] === 'string') {
-          encrypted += messageNum[i];
-          keySkip += 1;
-        } else {
-          encrypted += this.alphabet.charAt((messageNum[i] + keyNum[i - keySkip]) % 26)
-        }
-      }
-      if (this.direct) {
-        return encrypted;
-      } else {
-        encrypted = encrypted.split('').reverse().join('')
-        return encrypted
-      }
-
-    } else {
-      throw Error('Incorrect arguments!')
+  _setKey = (str, key) => {
+    while (key.length < str.length) {
+      key += key;
     }
+    return key;
   }
 
-  decrypt(message, key) {
-    if (typeof message === 'string' && typeof key === 'string') {
-      let decrypted = '';
-
-      let messageNum = this.charIndex(message);
-      let keyNum = this.charIndex(key);
-      if (keyNum.length < messageNum.length) {
-        keyNum = Array(Math.ceil(messageNum.length / keyNum.length)).fill(keyNum).flat();
-      }
-      keyNum.length = messageNum.length;
-      let keySkip = 0;
-
-      for (let i = 0; i < message.length; i++) {
-        if (typeof messageNum[i] === 'string') {
-          decrypted += messageNum[i];
-          keySkip += 1;
-        } else {
-          if (messageNum[i] - keyNum[i - keySkip] >= 0) {
-            decrypted += this.alphabet.charAt((messageNum[i] - keyNum[i - keySkip]) % 26)
-          } else {
-            decrypted += this.alphabet.charAt((messageNum[i] - keyNum[i - keySkip] + 26) % 26)
-          }
-        }
-      }
-      if (this.direct) {
-        return decrypted;
-      } else {
-        decrypted = decrypted.split('').reverse().join('')
-        return decrypted
-      }
-    } else {
-      throw Error('Incorrect arguments!')
+  encrypt(str, key) {
+    if (!str || !key){
+      throw new Error ('Incorrect arguments!');
     }
+
+    let j = 0;
+
+    str = str.toUpperCase();
+    key = key.toUpperCase();
+    key = this._setKey(str, key);
+
+    str = str.split('')
+        .map( a => this.alphabet.includes(a) ?
+            this.alphabet[(this.alphabet.indexOf(a) + this.alphabet.indexOf(key[j++])) % this.alphabet.length] : a)
+        .join('');
+
+    return this.type ? str : str.split('').reverse().join('');
+  }
+
+  decrypt(str, key) {
+    if (!str || !key){
+      throw new Error ('Incorrect arguments!');
+    }
+
+    let j = 0;
+    str = str.toUpperCase();
+    key = key.toUpperCase();
+    key = this._setKey(str, key);
+
+    str = str.split('')
+        .map( a => this.alphabet.includes(a) ?
+            this.alphabet.substr((this.alphabet.indexOf(a) - this.alphabet.indexOf(key[j++])) % this.alphabet.length, 1) : a)
+        .join('');
+
+    return this.type ? str : str.split('').reverse().join('');
   }
 }
-
-const directMachine = new VigenereCipheringMachine();
-const reverseMachine = new VigenereCipheringMachine(false);
-directMachine.encrypt('attack at dawn!', 'alphonse');
-// reverseMachine.decrypt('AEIHQX SX DLLU!', 'alphonse');
-// console.log(directMachine.encrypt('attack at dawn!', 'alphonse'))
-
 
 module.exports = {
   VigenereCipheringMachine
