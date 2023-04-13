@@ -56,8 +56,6 @@ function transform(arr) {
   return transformedArray;
 }
 
-console.log(transform([1, 2, 3, '--discard-next']));
-
 module.exports = {
   transform
 };

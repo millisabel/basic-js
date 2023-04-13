@@ -21,7 +21,6 @@ function getSumOfDigits(n) {
     return n;
 }
 
-console.log(getSumOfDigits(911));
 module.exports = {
     getSumOfDigits
 };
